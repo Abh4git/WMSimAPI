@@ -1,5 +1,10 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import time
+from src.commands.commands import Controller, StartInletPumpCommand, \
+                TriggerDrumMotorCounterClockWiseCommand, OpenOutletValveCommand, CloseOutletValveCommand,\
+                StopInletPumpCommand, TriggerDrumMotorClockWiseCommand, StartDryerCommand, StopDryerCommand
+
 
 class Context:
     """
@@ -9,6 +14,7 @@ class Context:
     """
 
     _state = None
+    _controller =None
     """
     A reference to the current state of the Context.
     """
@@ -20,10 +26,11 @@ class Context:
         """
         The Context allows changing the State object at runtime.
         """
-
         print(f"Context: Transition to {type(state).__name__}")
         self._state = state
         self._state.context = self
+
+
 
     """
     The Context delegates part of its behavior to the current State object.
@@ -61,56 +68,105 @@ class State(ABC):
         pass
 
 
+
+
+
 class WaterCollection(State):
-    def performMainAction(self) -> None:
-        print("Performing Water Collection Sequence")
-        print("Checking Water level reached?")
-        print("Water collection completed, initiating state change.")
+    def performMainAction(self) :
+        print("Water Collection ...")
+        print("Water Collection completed, state change initiated.")
         self.context.transition_to(Washing())
 
+
+
     def performSubAction(self) -> None:
-        print("Water Collection SubAction sequence.")
+        print("Water Collection Subaction.")
 
 
 class Washing(State):
     def performMainAction(self) -> None:
-        print("Performing Washing Sequence")
-        print("Washing completed, initiating state change.")
-        self.context.transition_to(Washing())
+        print("Washing ...")
 
     def performSubAction(self) -> None:
-        print("Water Collection SubAction sequence.")
+        print("Washing completed, initiating state change.")
+        self.context.transition_to(Rinsing())
 
 
 class Rinsing(State):
     def performMainAction(self) -> None:
-        print("Performing Rinsing Sequence")
+        print("Rinsing ...")
         print("Rinsing completed, initiating state change.")
-        self.context.transition_to(Washing())
+        self.context.transition_to(Draining())
 
     def performSubAction(self) -> None:
-        print("Rinsing SubAction sequence.")
-
+        print("Rinsing Subaction.")
 class Draining(State):
     def performMainAction(self) -> None:
-        print("Performing Draining Sequence")
-        print("Draining completed, initiating state change.")
-        self.context.transition_to(Washing())
+        print("Draining ...")
+
 
     def performSubAction(self) -> None:
-        print("Draining  SubAction sequence.")
+        print("Draining completed, initiating state change.")
+        self.context.transition_to(Drying())
 
 class Drying(State):
     def performMainAction(self) -> None:
-        print("Performing Drying Sequence")
-        print("Washing completed, initiating state change.")
+        print(" Drying ...")
 
     def performSubAction(self) -> None:
-        print("Drying SubAction sequence.")
+        print("Drying Completed.")
 
 if __name__ == "__main__":
     # The client code.
+    _stateInfo = "START"
 
+    print (_stateInfo)
     context = Context(WaterCollection())
-    context.mainRequest()
-    context.subRequest()
+
+    controller = Controller()
+
+    controller.setCommand(StartInletPumpCommand("Start Inlet Pump"))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(StopInletPumpCommand("Stop Inlet Pump"))
+    controller.executeCommand()
+    context.mainRequest() #Washing
+    controller.setCommand(TriggerDrumMotorClockWiseCommand("Drum Clockwise"))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(TriggerDrumMotorCounterClockWiseCommand("Drum Counter Clockwise"))
+    controller.executeCommand()
+    context.subRequest()  #Rinse
+    controller.setCommand(OpenOutletValveCommand("Open Outlet Valve"))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(CloseOutletValveCommand("Close Outlet valve"))
+    controller.executeCommand()
+    #Water input
+    controller.setCommand(StartInletPumpCommand("Start Inlet Pump"))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(StopInletPumpCommand("Stop Inlet Pump"))
+    controller.executeCommand()
+    #do drum turning
+    controller.setCommand(TriggerDrumMotorClockWiseCommand("Drum Clockwise"))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(TriggerDrumMotorCounterClockWiseCommand("Drum Counter Clockwise"))
+    controller.executeCommand()
+    #Now drain the water
+    context.mainRequest() #Draining
+    controller.setCommand(OpenOutletValveCommand("Open Outlet valve"))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(CloseOutletValveCommand("Close Outlet Valve"))
+    controller.executeCommand()
+
+    context.subRequest()#Drying
+    controller.setCommand(StartDryerCommand("Start Dryer "))
+    controller.executeCommand()
+    time.sleep(5)  # 5 seconds
+    controller.setCommand(StopDryerCommand("Stop Dryer"))
+    controller.executeCommand()
+    _stateInfo = "END"
+    print (_stateInfo)

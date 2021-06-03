@@ -11,6 +11,10 @@ class Command(ABC):
     def execute(self) -> None:
         pass
 
+    @property
+    def result(self):
+        return self._result
+
 
 class StartInletPumpCommand(Command):
     """
@@ -23,6 +27,7 @@ class StartInletPumpCommand(Command):
     def execute(self) -> None:
         print(f"StartInletPumpCommand: Starting Inlet Pump"
               f"({self._payload})")
+        self._result=1 # 1 - Success
 
 class StopInletPumpCommand(Command):
     """
@@ -35,8 +40,10 @@ class StopInletPumpCommand(Command):
     def execute(self) -> None:
         print(f"StopInletPumpCommand: Stopping Inlet Pump"
               f"({self._payload})")
+        self._result = 1
 
-class StartOutletPumpCommand(Command):
+
+class OpenOutletValveCommand(Command):
     """
     Some commands can implement simple operations on their own.
     """
@@ -47,9 +54,9 @@ class StartOutletPumpCommand(Command):
     def execute(self) -> None:
         print(f"StartOutletPumpCommand: Starting Outlet Pump"
               f"({self._payload})")
+        self._result = 1
 
-
-class StopOutletPumpCommand(Command):
+class CloseOutletValveCommand(Command):
     """
     Some commands can implement simple operations on their own.
     """
@@ -60,7 +67,7 @@ class StopOutletPumpCommand(Command):
     def execute(self) -> None:
         print(f"StopOutletPumpCommand: Stopping Outlet Pump"
               f"({self._payload})")
-
+        self._result = 1
 class TriggerDrumMotorClockWiseCommand(Command):
     """
     Some commands can implement simple operations on their own.
@@ -72,7 +79,7 @@ class TriggerDrumMotorClockWiseCommand(Command):
     def execute(self) -> None:
         print(f"TriggerDrumMotorClockWiseCommand: Turning Drum Moter Clockwise"
               f"({self._payload})")
-
+        self._result = 1
 class TriggerDrumMotorCounterClockWiseCommand(Command):
     """
     Some commands can implement simple operations on their own.
@@ -84,7 +91,7 @@ class TriggerDrumMotorCounterClockWiseCommand(Command):
     def execute(self) -> None:
         print(f"TriggerDrumMotorCounterClockWiseCommand: Turning Drum Moter Counter Clockwise"
               f"({self._payload})")
-
+        self._result = 1
 
 class StartDryerCommand(Command):
     """
@@ -97,7 +104,7 @@ class StartDryerCommand(Command):
     def execute(self) -> None:
         print(f"StartDryerCommand: Starting Dryer"
               f"({self._payload})")
-
+        self._result = 1
 
 class StopDryerCommand(Command):
     """
@@ -110,56 +117,36 @@ class StopDryerCommand(Command):
     def execute(self) -> None:
         print(f"StopDryerCommand: Stopping Dryer"
               f"({self._payload})")
+        self._result = 1
 
 
-class Receiver:
-    """
-    The Receiver classes contain some important business logic. They know how to
-    perform all kinds of operations, associated with carrying out a request. In
-    fact, any class may serve as a Receiver.
-    """
-
-    def do_something(self, a: str) -> None:
-        print(f"\nReceiver: Working on ({a}.)", end="")
-
-    def do_something_else(self, b: str) -> None:
-        print(f"\nReceiver: Also working on ({b}.)", end="")
-
-class Invoker:
+class Controller:
     """
     The Invoker is associated with one or several commands. It sends a request
     to the command.
     """
 
-    _on_start = None
-    _on_finish = None
+    _currentCommand = None
 
     """
     Initialize commands.
     """
 
-    def set_on_start(self, command: Command):
-        self._on_start = command
+    def setCommand(self, command: Command):
+        self._currentCommand = command
 
-    def set_on_finish(self, command: Command):
-        self._on_finish = command
 
-    def do_something_important(self) -> None:
+    def executeCommand(self) -> None:
         """
         The Invoker does not depend on concrete command or receiver classes. The
         Invoker passes a request to a receiver indirectly, by executing a
         command.
         """
+        if isinstance(self._currentCommand, Command):
+            #print("Execute Command sequence")
+            self._currentCommand.execute()
 
-        print("Invoker: Does anybody want something done before I begin?")
-        if isinstance(self._on_start, Command):
-            self._on_start.execute()
 
-        print("Invoker: ...doing something really important...")
-
-        print("Invoker: Does anybody want something done after I finish?")
-        if isinstance(self._on_finish, Command):
-            self._on_finish.execute()
 
 
 
@@ -168,8 +155,6 @@ if __name__ == "__main__":
     The client code can parameterize an invoker with any commands.
     """
 
-    invoker = Invoker()
-    invoker.set_on_start(StartInletPumpCommand("Collecting Water!"))
-    receiver = Receiver()
-    invoker.set_on_finish(StopDryerCommand ("Drying completed"))
-    invoker.do_something_important()
+    contoller = Controller()
+    contoller.setCommand(StartInletPumpCommand("Collecting Water!"))
+    contoller.executeCommand()
