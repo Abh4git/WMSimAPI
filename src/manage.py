@@ -16,7 +16,7 @@ socketio = SocketIO(app,cors_allowed_origins="*")
 #CORS(app,resources={ r'/*': {'origins': '*'}}, supports_credentials=True)
 # Set CORS options on app configuration
 CORS(app, resources={ r'/*': {'origins': [
-    'http://localhost:3000', '*'  # React
+    'http://localhost:3000' # React
       # React
   ]}}, supports_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
 api_v2_cors_config = {
   "origins": [
-    'http://localhost:3000' , # React
+    'http://localhost:3000'  # React
   # React
   ],
   "methods": ["OPTIONS", "GET", "POST"],
@@ -65,24 +65,32 @@ api_v2_cors_config = {
 }
 
 
-@socketio.on('connect', namespace='/web')
-@cross_origin(**api_v2_cors_config)
+@socketio.on('connect')
+#@cross_origin(**api_v2_cors_config)
 def connect_web():
     print('[INFO] Web client connected: {}'.format(request.sid))
+    emit('my response', {'data': 'Connected'})
 
 
-@socketio.on('disconnect', namespace='/web')
-@cross_origin(**api_v2_cors_config)
+@socketio.on('my event')
+def test_message(message):
+    emit('my response', {'data': message['data']})
+
+@socketio.on('my broadcast event')
+def test_message(message):
+    emit('my response', {'data': message['data']}, broadcast=True)
+
+
+#@cross_origin(**api_v2_cors_config)
+#@socketio.on('message')
+#def handle_message(message): # Should it take an argument ?
+#    print("Message recieved" + message)
+
+@socketio.on('disconnect')
+#@cross_origin(**api_v2_cors_config)
 def disconnect_web():
     print('[INFO] Web client disconnected: {}'.format(request.sid))
 
-@socketio.on('connect', namespace='/cv')
-def connect_cv():
-    print('[INFO] CV client connected: {}'.format(request.sid))
-
-@socketio.on('disconnect', namespace='/cv')
-def disconnect_cv():
-    print('[INFO] CV client disconnected: {}'.format(request.sid))
 
 if __name__ == '__main__':
     manager.run()
