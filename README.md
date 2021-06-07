@@ -7,5 +7,4 @@
 https://github.com/Abh4git/WMSimulatorFrontEnd
   
 # Current State
-![Current State](https://github.com/Abh4git/WMSimAPI/blob/main/images/apirunning.png) 
-URL to Youtube Video:https://youtu.be/QnBSJ1sU11Q
+![Current State](https://github.com/Abh4git/WMSimAPI/blob/main/images/apirunning.png)
