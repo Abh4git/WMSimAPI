@@ -15,6 +15,7 @@ class Context:
 
     _state = None
     _controller =None
+    _statename=None
     """
     A reference to the current state of the Context.
     """
@@ -67,13 +68,19 @@ class State(ABC):
     def performSubAction(self) -> None:
         pass
 
+    @property
+    def statename(self):
+        return self._statename
 
-
+    @statename.setter
+    def statename(self, statename) -> None:
+        self._statename = statename
 
 
 class WaterCollection(State):
     def performMainAction(self) :
         print("Water Collection ...")
+        self.statename = "Water Collection"
         print("Water Collection completed, state change initiated.")
         self.context.transition_to(Washing())
 
@@ -85,6 +92,7 @@ class WaterCollection(State):
 
 class Washing(State):
     def performMainAction(self) -> None:
+        self.statename="Washing"
         print("Washing ...")
 
     def performSubAction(self) -> None:
@@ -95,6 +103,7 @@ class Washing(State):
 class Rinsing(State):
     def performMainAction(self) -> None:
         print("Rinsing ...")
+        self.statename = "Rinsing"
         print("Rinsing completed, initiating state change.")
         self.context.transition_to(Draining())
 
@@ -111,6 +120,7 @@ class Draining(State):
 
 class Drying(State):
     def performMainAction(self) -> None:
+        self.statename = "Drying"
         print(" Drying ...")
 
     def performSubAction(self) -> None:

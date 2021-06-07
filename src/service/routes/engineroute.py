@@ -35,3 +35,9 @@ def stopEngine():
     print(requestInfo)
     response=enginecontroller.stopEngine()
     return response
+
+@cross_origin(**api_v2_cors_config)
+def getEngineStatus():
+    enginecontroller = EngineController()
+    response=enginecontroller.getCurrentState()
+    return response

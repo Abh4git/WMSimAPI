@@ -25,7 +25,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.add_url_rule('/api/engine', view_func=engineroute.startEngine,methods=['POST'])
 app.add_url_rule('/api/engine', view_func=engineroute.stopEngine,methods=['PUT'])
-
+app.add_url_rule('/api/engine', view_func=engineroute.getEngineStatus,methods=['GET'])
 
 #@app.after_request
 #def after_request(response):
