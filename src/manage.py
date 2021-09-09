@@ -1,6 +1,6 @@
 import os
 
-from flask_script import Manager
+#from flask_script import Manager
 from src import create_app
 from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO, emit, disconnect
@@ -35,9 +35,9 @@ app.add_url_rule('/api/engine', view_func=engineroute.getEngineStatus,methods=['
 #  response.headers.add('Access-Control-Allow-Credentials', 'true')
 #  return response
 
-manager = Manager(app)
+#manager = Manager(app)
 
-@manager.command
+#@manager.command
 def run():
     print('[INFO] Run server at http://localhost:5000')
     socketio.run(app=app,debug=True,host='0.0.0.0', port=5000,cors_allowed_origins="*")
